@@ -8,6 +8,11 @@ export function getAdmin(request: Request) {
     request.headers.get('oai-authenticated-user-email')
   )?.toLowerCase();
   const allowed = (env as unknown as AuthEnv).ADMIN_EMAIL?.toLowerCase();
-  if (!allowed) return process.env.NODE_ENV === 'development' ? 'local-admin' : null;
+  // Cloudflare Access already restricts this route to the administrator policy.
+  // If the optional allowlist variable is absent, trust the identity asserted by Access.
+  if (!allowed) {
+    if (email && request.headers.has('cf-access-authenticated-user-email')) return email;
+    return process.env.NODE_ENV === 'development' ? 'local-admin' : null;
+  }
   return email === allowed ? email : null;
 }
