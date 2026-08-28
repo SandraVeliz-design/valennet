@@ -17,7 +17,7 @@ export default function AdminPage() {
   const [uploadingImage,setUploadingImage] = useState<string|null>(null);
 
   useEffect(() => {
-    Promise.all([fetch('/api/content'), fetch('/api/contact')]).then(async ([contentResponse, leadsResponse]) => {
+    Promise.all([fetch('/admin/api/content'), fetch('/api/contact')]).then(async ([contentResponse, leadsResponse]) => {
       const data = await contentResponse.json();
       const leadData = leadsResponse.ok ? await leadsResponse.json() : { leads: [] };
       setContent(data); setLeads(leadData.leads ?? []); setStatus('ready');
@@ -50,7 +50,7 @@ export default function AdminPage() {
   const confirmDelete = () => { if (!deleteTarget) return; if (deleteTarget.type==='service') { removeService(Number(deleteTarget.id)); setEditingService(null); } if (deleteTarget.type==='project') { removeProject(String(deleteTarget.id)); setEditingProject(null); } if (deleteTarget.type==='course') { removeCourse(String(deleteTarget.id)); setEditingCourse(null); } if (deleteTarget.type==='certification') { removeCertification(String(deleteTarget.id)); setEditingCertification(null); } setDeleteTarget(null); };
   async function save() {
     setStatus('saving');
-    const response = await fetch('/api/content',{ method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(content) });
+    const response = await fetch('/admin/api/content',{ method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(content) });
     setStatus(response.ok ? 'saved' : 'error');
   }
 
