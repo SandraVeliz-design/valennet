@@ -12,6 +12,7 @@ export function getAdmin(request: Request) {
   // If the optional allowlist variable is absent, trust the identity asserted by Access.
   if (!allowed) {
     if (email && request.headers.has('cf-access-authenticated-user-email')) return email;
+    if (request.headers.has('cf-access-jwt-assertion')) return 'access-user';
     return process.env.NODE_ENV === 'development' ? 'local-admin' : null;
   }
   return email === allowed ? email : null;
