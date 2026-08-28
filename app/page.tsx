@@ -40,12 +40,12 @@ export default function Home() {
   return <main>
     <header className="site-header">
       <a className="brand" href="#inicio" aria-label="Valennet Solutions, inicio"><BrandMark/><span className="brand-name">valennet<small>solutions</small></span></a>
-      <nav className="desktop-nav" aria-label="Navegación principal"><a href="#nosotros">Quiénes somos</a><a href="#soluciones-servicios">Soluciones</a><a href="#proyectos">Capacidad</a><a href="#capacitacion">Capacitación</a></nav>
+      <nav className="desktop-nav" aria-label="Navegación principal"><a href="#nosotros">Quiénes somos</a><a href="#soluciones-servicios">Soluciones</a><a href="#capacidad">Capacidad</a><a href="#capacitacion">Capacitación</a></nav>
       <a className="header-cta" href="#contacto">Solicitar asesoría <span>↗</span></a>
       <button className="menu-button" type="button" aria-label={menuOpen?'Cerrar menú':'Abrir menú'} aria-expanded={menuOpen} onClick={()=>setMenuOpen(!menuOpen)}><span/><span/></button>
     </header>
     <div className={`mobile-panel ${menuOpen?'is-open':''}`} aria-hidden={!menuOpen}>
-      <nav aria-label="Navegación móvil"><a onClick={closeMenu} href="#nosotros"><b>00</b>Quiénes somos</a><a onClick={closeMenu} href="#soluciones-servicios"><b>01</b>Soluciones</a><a onClick={closeMenu} href="#proyectos"><b>02</b>Capacidad técnica</a><a onClick={closeMenu} href="#metodologia"><b>03</b>Metodología</a><a onClick={closeMenu} href="#capacitacion"><b>04</b>Capacitación</a></nav>
+      <nav aria-label="Navegación móvil"><a onClick={closeMenu} href="#nosotros"><b>00</b>Quiénes somos</a><a onClick={closeMenu} href="#soluciones-servicios"><b>01</b>Soluciones</a><a onClick={closeMenu} href="#capacidad"><b>02</b>Capacidad técnica</a><a onClick={closeMenu} href="#metodologia"><b>03</b>Metodología</a><a onClick={closeMenu} href="#capacitacion"><b>04</b>Capacitación</a></nav>
       <a className="button button-primary" onClick={closeMenu} href="#contacto">Hablar con un especialista <span>↗</span></a>
     </div>
     <section className="hero" id="inicio"><div className="hero-copy"><p className="eyebrow"><span/> {content.hero.eyebrow}</p><h1>{content.hero.title} <em>{content.hero.accent}</em></h1><p className="hero-lede">{content.hero.description}</p><div className="hero-actions"><a className="button button-primary" href="#contacto">Hablar con un especialista <span>↗</span></a><a className="button button-secondary" href="#soluciones-servicios">Explorar soluciones <span>↓</span></a></div><div className="service-list" aria-label="Áreas de servicio">{featuredServices.map(({title},i)=><span key={title}><b>0{i+1}</b>{title}</span>)}</div></div><NetworkScene/><div className="scroll-cue"><span/> DESCUBRIR EL SISTEMA</div></section>
