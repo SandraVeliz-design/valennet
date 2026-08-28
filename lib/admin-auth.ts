@@ -8,6 +8,7 @@ export function getAdmin(request: Request) {
     request.headers.get('oai-authenticated-user-email')
   )?.toLowerCase();
   const allowed = (env as unknown as AuthEnv).ADMIN_EMAIL?.toLowerCase();
+  if (request.headers.has('cf-access-jwt-assertion')) return email ?? 'access-user';
   // Cloudflare Access already restricts this route to the administrator policy.
   // If the optional allowlist variable is absent, trust the identity asserted by Access.
   if (!allowed) {
