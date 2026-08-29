@@ -36,7 +36,7 @@ export async function POST(request: Request) {
   const base = file.name.replace(/\.[^/.]+$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 60) || 'imagen';
   const key = `${folder}/${Date.now()}-${base}.${extension}`;
   await store.put(key, file.stream(), { httpMetadata: { contentType: file.type, cacheControl: 'public, max-age=31536000, immutable' }, customMetadata: { uploadedBy: admin } });
-  return Response.json({ ok: true, key, url: `/api/media?key=${encodeURIComponent(key)}`, name: file.name, type: file.type, size: file.size });
+  return Response.json({ ok: true, key, url: `/media/${key}`, name: file.name, type: file.type, size: file.size });
 }
 
 export async function DELETE(request: Request) {
