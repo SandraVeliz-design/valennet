@@ -1,7 +1,7 @@
 import { env } from 'cloudflare:workers';
 
 function safeKey(value: string) {
-  return value.replace(/[^a-zA-Z0-9/_-]/g, '-').replace(/\/{2,}/g, '/').replace(/^\/+|\/+$/g, '');
+  return value.replace(/[^a-zA-Z0-9/_.-]/g, '-').replace(/\/{2,}/g, '/').replace(/^\/+|\/+$/g, '');
 }
 
 export async function GET(_request: Request, context: { params: Promise<{ key: string[] }> }) {
