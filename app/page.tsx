@@ -21,6 +21,7 @@ function NetworkScene() {
 
 export default function Home() {
   const [menuOpen,setMenuOpen] = useState(false);
+  const [solutionFilter,setSolutionFilter] = useState('Todas');
   const [content,setContent] = useState<SiteContent>(defaultContent);
   const [contactForm,setContactForm] = useState({name:'',email:'',phone:'',company:'',service:'Infraestructura TI',message:'',consent:false});
   const [contactStatus,setContactStatus] = useState<'idle'|'sending'|'sent'|'error'>('idle');
@@ -31,6 +32,8 @@ export default function Home() {
   const about = content.about ?? defaultContent.about;
   const featuredServices = services.filter(service => service.featured !== false).slice(0, 4);
   const complementaryServices = services.filter(service => service.featured === false);
+  const solutions = content.solutions ?? defaultContent.solutions!;
+  const filteredFeaturedServices = services.filter(service => service.featured !== false && (solutionFilter === 'Todas' || service.category === solutionFilter));
   const publishedProjects = (content.projects ?? []).filter(project => project.status === 'published' && project.visible !== false);
   const featuredProject = publishedProjects[0];
   const supportingProjects = publishedProjects.slice(1);
@@ -75,8 +78,9 @@ export default function Home() {
     {about.visible !== false && <section className="about-section section" id="nosotros"><div className="about-copy"><p className="eyebrow"><span/> {about.eyebrow}</p><h2>{about.title}</h2><p className="about-description">{about.description}</p><p className="about-closing">{about.closing}</p><p className="about-meta">DESDE {about.foundation} <i/> {about.location} <i/> {about.focus}</p></div><div className="about-visual">{about.image && <div className="about-image" style={{backgroundImage:`url(${about.image})`}} role="img" aria-label={about.imageAlt || 'Imagen referencial de infraestructura tecnológica'}><span>IMAGEN REFERENCIAL</span><i className="about-scan"/><b className="about-point point-infra">INFRAESTRUCTURA</b><b className="about-point point-security">SEGURIDAD</b><b className="about-point point-connect">CONECTIVIDAD</b></div>}<div className="about-principles"><p className="index">CÓMO TRABAJAMOS</p>{about.principles.map((principle,i)=><div key={`${principle}-${i}`}><span>0{i+1}</span><strong>{principle}</strong></div>)}</div></div></section>}
 
     <section className="solutions section-pad">
-      <div className="section-heading"><p className="index">01 / SOLUCIONES</p><h2>Ingeniería de extremo a extremo.</h2><p>Cuatro capas conectadas para convertir una necesidad tecnológica en una operación estable.</p></div>
-      <div className="solution-stack">{featuredServices.map((s,i)=><article className="solution-card" key={s.title}><div className="solution-top"><span>{s.n}</span><i className="solution-node"/></div><h3>{s.title}</h3><p>{s.copy}</p><div className="tag-row">{s.tags.map(t=><span key={t}>{t}</span>)}</div><div className="card-route"><i style={{animationDelay:`${i*.6}s`}}/></div></article>)}</div>
+      <div className="section-heading"><p className="index">{solutions.eyebrow}</p><h2>{solutions.title}</h2><p>{solutions.description}</p></div>
+      <div className="solution-filters" role="tablist" aria-label="Filtrar soluciones">{solutions.categories.map(category=><button type="button" className={solutionFilter===category?'is-active':''} aria-selected={solutionFilter===category} onClick={()=>setSolutionFilter(category)} key={category}>{category}</button>)}</div>
+      <div className="solution-stack">{filteredFeaturedServices.map((s,i)=><article className="solution-card" key={s.title}><div className="solution-top"><span>{s.n}</span><i className="solution-node"/></div><h3>{s.title}</h3><p>{s.copy}</p><div className="tag-row">{s.tags.map(t=><span key={t}>{t}</span>)}</div><div className="card-route"><i style={{animationDelay:`${i*.6}s`}}/></div></article>)}</div>
       {complementaryServices.length > 0 && <div className="complementary-services"><div><p className="index">CAPACIDADES COMPLEMENTARIAS</p><h3>La arquitectura se adapta al alcance real.</h3></div><div className="complementary-list">{complementaryServices.map(service => <div key={service.title}><span>{service.n}</span><strong>{service.title}</strong><small>{service.tags.slice(0,2).join(' · ')}</small></div>)}</div></div>}
     </section>
 

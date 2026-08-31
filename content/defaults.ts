@@ -2,7 +2,17 @@ export type ServiceContent = {
   n: string;
   title: string;
   copy: string;
+  /** Contenido ampliado para la ficha pública de la solución (HTML básico). */
+  details?: string;
   tags: string[];
+  category?: 'Infraestructura y conectividad'|'Data Center y continuidad'|'Ciberseguridad'|'Seguridad electrónica'|'Servicios complementarios';
+  outcome?: string;
+  audience?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  image?: string;
+  imageAlt?: string;
+  gallery?: Array<{ url: string; alt?: string }>;
   featured?: boolean;
   visible?: boolean;
 };
@@ -39,6 +49,12 @@ export type SiteContent = {
     visible: boolean;
   };
   services: ServiceContent[];
+  solutions?: {
+    eyebrow: string;
+    title: string;
+    description: string;
+    categories: string[];
+  };
   capacity: {
     eyebrow: string;
     title: string;
@@ -89,29 +105,35 @@ export const defaultContent: SiteContent = {
   },
   about: {
     eyebrow: 'Quiénes somos',
-    title: 'Integramos tecnología para hacer avanzar operaciones reales.',
-    description: 'Somos una empresa peruana enfocada en integrar tecnologías de información y telecomunicaciones para acompañar proyectos de transformación digital.',
+    title: 'Integramos infraestructura, seguridad y conectividad para operaciones que no pueden detenerse.',
+    description: 'Valennet Solutions diseña e implementa infraestructura tecnológica para organizaciones que necesitan continuidad, seguridad y capacidad de crecimiento. Integramos distintas tecnologías y fabricantes en una solución coordinada, desde el diagnóstico hasta el soporte.',
     foundation: '2024',
     location: 'Perú',
     focus: 'Integración tecnológica y transformación digital',
     principles: ['Diseño según requerimientos', 'Implementación coordinada', 'Continuidad y soporte'],
-    closing: 'Unimos infraestructura, seguridad y conocimiento para construir soluciones aplicables al entorno real.',
+    closing: 'Entendemos la operación, diseñamos la arquitectura adecuada y acompañamos su evolución después de la implementación.',
     image: '/project-data-center.png',
     imageAlt: 'Imagen referencial de infraestructura tecnológica y data center',
     visible: true,
   },
   services: [
-    { n:'01', title:'Infraestructura TI', copy:'Arquitecturas de conectividad, cómputo y disponibilidad diseñadas para sostener operaciones críticas.', tags:['Networking','Servidores','Hiperconvergencia'], featured:true, visible:true },
-    { n:'02', title:'Data Center', copy:'Diseño e implementación de las capas que mantienen la información disponible, organizada y preparada para crecer.', tags:['On-premise','Cloud','Continuidad'], featured:true },
-    { n:'03', title:'Ciberseguridad', copy:'Protección incorporada desde la arquitectura para reducir exposición y fortalecer cada entorno.', tags:['Perímetro','Hardening','Hacking ético'], featured:true },
-    { n:'04', title:'Seguridad electrónica', copy:'Videovigilancia conectada a una infraestructura confiable para observar, registrar y responder.', tags:['CCTV / IP','Monitoreo','Integración'], featured:true },
-    { n:'05', title:'Redes y conectividad', copy:'Redes LAN, WAN, WLAN y WiFi diseñadas para conectar personas, sedes y operaciones con estabilidad.', tags:['LAN / WAN','WLAN','WiFi Analytics'], featured:false },
-    { n:'06', title:'Virtualización y backup', copy:'Entornos virtualizados y respaldos confiables para optimizar la agilidad, disponibilidad y recuperación de la información.', tags:['Virtualización','Backup','Recuperación'], featured:false },
-    { n:'07', title:'Cableado estructurado', copy:'Instalaciones ordenadas y certificables para sostener redes estables en interiores, data centers y sedes.', tags:['Fibra óptica','UTP','Certificación'], featured:false },
-    { n:'08', title:'Comunicaciones unificadas', copy:'Integración de voz, video, mensajería y correo electrónico para mejorar la colaboración empresarial.', tags:['Voz','Video','Colaboración'], featured:false },
-    { n:'09', title:'Outsourcing TI', copy:'Soporte presencial y remoto, mantenimiento preventivo y acompañamiento técnico para la operación diaria.', tags:['Soporte','Mantenimiento','Operación'], featured:false },
-    { n:'10', title:'Equipamiento tecnológico', copy:'Suministro de equipos informáticos, periféricos y soluciones multimedia según las necesidades de cada organización.', tags:['Workstations','Impresión','Multimedia'], featured:false },
+    { n:'01', title:'Infraestructura TI', copy:'Arquitecturas de conectividad, cómputo y disponibilidad diseñadas para sostener operaciones críticas.', tags:['Networking','Servidores','Hiperconvergencia'], category:'Infraestructura y conectividad', outcome:'Una base tecnológica estable y preparada para crecer.', ctaLabel:'Evaluar mi infraestructura', featured:true, visible:true },
+    { n:'02', title:'Data Center', copy:'Diseño e implementación de las capas que mantienen la información disponible, organizada y preparada para crecer.', tags:['On-premise','Cloud','Continuidad'], category:'Data Center y continuidad', outcome:'Información disponible, protegida y recuperable.', ctaLabel:'Diseñar mi Data Center', featured:true, visible:true },
+    { n:'03', title:'Ciberseguridad', copy:'Protección incorporada desde la arquitectura para reducir exposición y fortalecer cada entorno.', tags:['Perímetro','Hardening','Hacking ético'], category:'Ciberseguridad', outcome:'Menor exposición y mayor control sobre los riesgos.', ctaLabel:'Proteger mi operación', featured:true, visible:true },
+    { n:'04', title:'Seguridad electrónica', copy:'Videovigilancia conectada a una infraestructura confiable para observar, registrar y responder.', tags:['CCTV / IP','Monitoreo','Integración'], category:'Seguridad electrónica', outcome:'Visibilidad y respuesta sobre instalaciones y activos.', ctaLabel:'Integrar seguridad', featured:true, visible:true },
+    { n:'05', title:'Redes y conectividad', copy:'Redes LAN, WAN, WLAN y WiFi diseñadas para conectar personas, sedes y operaciones con estabilidad.', tags:['LAN / WAN','WLAN','WiFi Analytics'], category:'Infraestructura y conectividad', featured:false },
+    { n:'06', title:'Virtualización y backup', copy:'Entornos virtualizados y respaldos confiables para optimizar la agilidad, disponibilidad y recuperación de la información.', tags:['Virtualización','Backup','Recuperación'], category:'Data Center y continuidad', featured:false },
+    { n:'07', title:'Cableado estructurado', copy:'Instalaciones ordenadas y certificables para sostener redes estables en interiores, data centers y sedes.', tags:['Fibra óptica','UTP','Certificación'], category:'Servicios complementarios', featured:false },
+    { n:'08', title:'Comunicaciones unificadas', copy:'Integración de voz, video, mensajería y correo electrónico para mejorar la colaboración empresarial.', tags:['Voz','Video','Colaboración'], category:'Infraestructura y conectividad', featured:false },
+    { n:'09', title:'Outsourcing TI', copy:'Soporte presencial y remoto, mantenimiento preventivo y acompañamiento técnico para la operación diaria.', tags:['Soporte','Mantenimiento','Operación'], category:'Servicios complementarios', featured:false },
+    { n:'10', title:'Equipamiento tecnológico', copy:'Suministro de equipos informáticos, periféricos y soluciones multimedia según las necesidades de cada organización.', tags:['Workstations','Impresión','Multimedia'], category:'Servicios complementarios', featured:false },
   ],
+  solutions: {
+    eyebrow: '01 / SOLUCIONES',
+    title: 'Ingeniería de extremo a extremo.',
+    description: 'Cuatro capas conectadas para convertir una necesidad tecnológica en una operación estable.',
+    categories: ['Todas','Infraestructura y conectividad','Data Center y continuidad','Ciberseguridad','Seguridad electrónica'],
+  },
   capacity: {
     eyebrow: '02 / CAPACIDAD TÉCNICA',
     title: 'Capacidad para integrar proyectos tecnológicos de alta complejidad.',

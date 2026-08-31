@@ -103,3 +103,4 @@
 .admin-image-field input[type=file]{font-size:12px;color:#9eb1bc}
 .admin-image-field button{justify-self:start;border:1px solid rgba(255,127,127,.35);border-radius:5px;background:transparent;color:#ffabab;padding:8px 11px;cursor:pointer}
 .admin-image-field small{color:#79cda7}
+.admin-solutions-header{display:grid;gap:10px;margin:18px 0;padding:14px;border:1px solid #1b3442;background:#09131d}.admin-solutions-header>b{color:#8fc7da;font:10px var(--font-geist-mono);letter-spacing:.08em;text-transform:uppercase}.admin-solutions-header label{display:grid;gap:6px;color:#8ba0b0;font-size:10px;letter-spacing:.06em;text-transform:uppercase}.admin-solutions-header input,.admin-solutions-header textarea{width:100%;padding:9px 10px;border:1px solid #223d4b;border-radius:3px;background:#0b131c;color:#edf5fa;font:13px var(--font-geist-sans);text-transform:none;letter-spacing:0}.admin-solutions-header textarea{resize:vertical}

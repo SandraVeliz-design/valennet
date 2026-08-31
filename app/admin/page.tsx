@@ -4,11 +4,14 @@ import { useEffect, useState } from 'react';
 import { defaultContent, type SiteContent } from '../../content/defaults';
 import type { ContactLeadRecord } from '../../lib/content-db';
 
+const solutionSlug=(title:string)=>title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+
 export default function AdminPage() {
   const [content,setContent] = useState<SiteContent>(defaultContent);
   const [status,setStatus] = useState<'loading'|'ready'|'saving'|'saved'|'error'>('loading');
   const [leads,setLeads] = useState<ContactLeadRecord[]>([]);
   const [activeSection,setActiveSection] = useState('inicio');
+  const [serviceView,setServiceView] = useState<'services'|'solutions'>('services');
   const [editingService,setEditingService] = useState<number|null>(null);
   const [editingProject,setEditingProject] = useState<string|null>(null);
   const [editingCourse,setEditingCourse] = useState<string|null>(null);
@@ -24,23 +27,69 @@ export default function AdminPage() {
     }).catch(() => setStatus('error'));
   }, []);
   useEffect(() => { const sync = () => setActiveSection(window.location.hash.replace('#','') || 'inicio'); sync(); window.addEventListener('hashchange', sync); return () => window.removeEventListener('hashchange', sync); }, []);
+  useEffect(() => {
+    const section=document.getElementById('servicios');
+    const list=section?.querySelector<HTMLElement>('.admin-item-list');
+    if(!section||!list||section.querySelector('.service-solutions-link')) return;
+    const link=document.createElement('a');
+    link.className='service-solutions-link';
+    link.href='/admin/soluciones';
+    link.textContent='Ir a soluciones →';
+    section.querySelector('.admin-block-title > div')?.appendChild(link);
+  }, [content.services]);
+  useEffect(() => {
+    const editor = document.querySelector('#servicios .admin-item-editor .admin-editor-fields');
+    if (!editor || editor.querySelector('.service-category-field')) return;
+    const index = editingService;
+    if (index === null || !content.services[index]) return;
+    const label = document.createElement('label');
+    label.className = 'service-category-field';
+    label.textContent = 'Categoría';
+    const select = document.createElement('select');
+    ['Infraestructura y conectividad','Data Center y continuidad','Ciberseguridad','Seguridad electrónica','Servicios complementarios'].forEach(category => {
+      const option = document.createElement('option'); option.value = category; option.textContent = category; select.appendChild(option);
+    });
+    select.value = content.services[index].category ?? 'Servicios complementarios';
+    select.addEventListener('change', () => updateService(index, 'category', select.value));
+    label.appendChild(select); editor.prepend(label);
+  }, [editingService, content.services]);
+  useEffect(() => {
+    const editor = document.querySelector('#servicios .admin-item-editor .admin-editor-fields');
+    const index = editingService;
+    if (!editor || index === null || !content.services[index] || editor.querySelector('.service-outcome-field')) return;
+    const label = document.createElement('label'); label.className='service-outcome-field field-wide'; label.textContent='Resultado destacado (opcional)';
+    const textarea = document.createElement('textarea'); textarea.rows=2; textarea.value=content.services[index].outcome||''; textarea.placeholder='Si está vacío, no se mostrará.'; textarea.addEventListener('input',()=>updateService(index,'outcome',textarea.value)); label.appendChild(textarea);
+    const description = Array.from(editor.querySelectorAll('label')).find(item=>item.textContent?.startsWith('Descripción')); description?.insertAdjacentElement('afterend',label);
+  }, [editingService, content.services]);
 
+  useEffect(() => {
+    const section=document.getElementById('servicios'); const host=section?.querySelector<HTMLElement>('.admin-block-title > div');
+    if(!host || host.querySelector('.admin-solutions-header')) return;
+    const data=content.solutions ?? defaultContent.solutions!; const box=document.createElement('div'); box.className='admin-solutions-header';
+    box.innerHTML='<b>Cabecera de Soluciones (Home)</b>';
+    const add=(label:string,key:'eyebrow'|'title'|'description'|'categories',multi=false)=>{const wrap=document.createElement('label');wrap.textContent=label;const input=document.createElement(multi?'textarea':'input') as HTMLInputElement|HTMLTextAreaElement; if(multi)(input as HTMLTextAreaElement).rows=key==='categories'?4:2; input.value=key==='categories'?(data.categories||[]).join('\n'):(data[key] as string); input.addEventListener('input',()=>updateSolutions(key,key==='categories'?(input.value as string).split('\n').map(v=>v.trim()).filter(Boolean):input.value));wrap.appendChild(input);box.appendChild(wrap)};
+    add('Etiqueta','eyebrow'); add('Título','title'); add('Descripción','description',true); add('Categorías (una por línea)','categories',true); host.insertBefore(box,host.querySelector('.service-solutions-link')||host.querySelector('.admin-add'));
+  }, [content.solutions]);
   const updateHero = (key: keyof SiteContent['hero'], value: string) => setContent(current => ({ ...current, hero:{ ...current.hero, [key]:value } }));
   const updateAbout = (key: keyof SiteContent['about'], value: string|boolean|string[]) => setContent(current => ({ ...current, about:{ ...(current.about ?? defaultContent.about), [key]:value } }));
   const updateTraining = (key: 'title'|'description', value: string) => setContent(current => ({ ...current, training:{ ...current.training, [key]:value } }));
   const updateContact = (key: keyof SiteContent['contact'], value: string) => setContent(current => ({ ...current, contact:{ ...current.contact, [key]:value } }));
-  const updateService = (index:number, key:'title'|'copy'|'featured'|'visible', value:string|boolean) => setContent(current => ({ ...current, services:current.services.map((service,i) => i === index ? { ...service,[key]:value } : service) }));
+  const updateService = (index:number, key:'title'|'copy'|'details'|'category'|'outcome'|'audience'|'ctaLabel'|'ctaHref'|'image'|'imageAlt'|'featured'|'visible', value:string|boolean) => setContent(current => ({ ...current, services:current.services.map((service,i) => i === index ? { ...service,[key]:value } : service) }));
   const updateServiceTags = (index:number, value:string) => setContent(current => ({ ...current, services:current.services.map((service,i) => i === index ? { ...service, tags:value.split(',').map(tag => tag.trim()).filter(Boolean) } : service) }));
+  const updateSolutions = (key:'eyebrow'|'title'|'description'|'categories', value:string|string[]) => setContent(current => ({ ...current, solutions:{ ...(current.solutions ?? defaultContent.solutions!), [key]:value } }));
   const updateCapacity = (key:'eyebrow'|'title'|'description'|'closing'|'visible', value:string|boolean) => setContent(current => ({ ...current, capacity:{ ...current.capacity,[key]:value } }));
   const updateCapacityItem = (index:number, key:'title'|'description', value:string) => setContent(current => ({ ...current, capacity:{ ...current.capacity,items:current.capacity.items.map((item,i)=>i===index?{...item,[key]:value}:item) } }));
-  const addService = () => setContent(current => ({ ...current, services:[...current.services,{ n:String(current.services.length + 1).padStart(2,'0'), title:'Nuevo servicio', copy:'Describe el alcance de esta solución.', tags:['Nueva categoría'], featured:false, visible:true }] }));
+  const addService = () => setContent(current => ({ ...current, services:[...current.services,{ n:String(current.services.length + 1).padStart(2,'0'), title:'Nueva solución', copy:'Describe el alcance de esta solución.', category:'Servicios complementarios', outcome:'Resultado esperado para el cliente.', audience:'Organizaciones que necesitan una infraestructura confiable.', ctaLabel:'Conversar sobre esta solución', ctaHref:'#contacto', tags:['Nueva categoría'], featured:false, visible:true }] }));
   const removeService = (index:number) => setContent(current => ({ ...current, services:current.services.filter((_,i) => i !== index).map((service,i) => ({ ...service, n:String(i + 1).padStart(2,'0') })) }));
   const addProject = () => setContent(current => ({ ...current, projects:[...(current.projects ?? []),{ id:crypto.randomUUID(),title:'Nuevo proyecto',sector:'',summary:'',client:'',image:'/project-data-center.png',imageAlt:'Imagen referencial de infraestructura tecnológica',showClient:false,status:'draft',visible:true }] }));
   const updateProject = (id:string, key:string, value:string|boolean) => setContent(current => ({ ...current, projects:(current.projects ?? []).map(project => project.id === id ? { ...project,[key]:value } : project) }));
   const removeProject = (id:string) => setContent(current => ({ ...current, projects:(current.projects ?? []).filter(project => project.id !== id) }));
-  const uploadProjectImage = async (id:string, file:File) => { setUploadingImage(id); const form = new FormData(); form.append('file',file); form.append('folder','proyectos'); try { const response = await fetch('/api/media',{method:'POST',body:form}); const data = await response.json(); if (!response.ok) { window.alert(data.error || 'No se pudo subir la imagen.'); return; } updateProject(id,'image',data.url); } finally { setUploadingImage(null); } };
-  const uploadAboutImage = async (file:File) => { setUploadingImage('about'); const form = new FormData(); form.append('file',file); form.append('folder','nosotros'); try { const response = await fetch('/api/media',{method:'POST',body:form}); const data = await response.json(); if (!response.ok) { window.alert(data.error || 'No se pudo subir la imagen.'); return; } updateAbout('image',data.url); } finally { setUploadingImage(null); } };
-  const uploadCertificationImage = async (id:string, file:File) => { setUploadingImage(id); const form = new FormData(); form.append('file',file); form.append('folder','certificaciones'); try { const response = await fetch('/api/media',{method:'POST',body:form}); const data = await response.json(); if (!response.ok) { window.alert(data.error || 'No se pudo subir la imagen.'); return; } updateCertification(id,'image',data.url); } finally { setUploadingImage(null); } };
+  const uploadProjectImage = async (id:string, file:File) => { setUploadingImage(id); const form = new FormData(); form.append('file',file); form.append('folder','proyectos'); try { const response = await fetch('/admin/api/media',{method:'POST',body:form}); const data = await response.json(); if (!response.ok) { window.alert(data.error || 'No se pudo subir la imagen.'); return; } updateProject(id,'image',data.url); } finally { setUploadingImage(null); } };
+  const uploadAboutImage = async (file:File) => { setUploadingImage('about'); const form = new FormData(); form.append('file',file); form.append('folder','nosotros'); try { const response = await fetch('/admin/api/media',{method:'POST',body:form}); const data = await response.json(); if (!response.ok) { window.alert(data.error || 'No se pudo subir la imagen.'); return; } updateAbout('image',data.url); } finally { setUploadingImage(null); } };
+  const uploadServiceImage = async (index:number, file:File) => { setUploadingImage(`service-${index}`); const form = new FormData(); form.append('file',file); form.append('folder','soluciones'); try { const response = await fetch('/admin/api/media',{method:'POST',body:form}); const data = await response.json(); if (!response.ok) { window.alert(data.error || 'No se pudo subir la imagen.'); return; } updateService(index,'image',data.url); } finally { setUploadingImage(null); } };
+  const uploadServiceGalleryImage = async (index:number, file:File) => { setUploadingImage(`service-gallery-${index}`); const form = new FormData(); form.append('file',file); form.append('folder','soluciones/galeria'); try { const response = await fetch('/admin/api/media',{method:'POST',body:form}); const data = await response.json(); if (!response.ok) { window.alert(data.error || 'No se pudo subir la imagen.'); return; } setContent(current => ({ ...current, services:current.services.map((service,i) => i === index ? { ...service, gallery:[...(service.gallery ?? []),{url:data.url,alt:service.title}] } : service) })); } finally { setUploadingImage(null); } };
+  const removeServiceGalleryImage = (index:number, galleryIndex:number) => setContent(current => ({ ...current, services:current.services.map((service,i) => i === index ? { ...service, gallery:(service.gallery ?? []).filter((_,itemIndex)=>itemIndex !== galleryIndex) } : service) }));
+  const uploadCertificationImage = async (id:string, file:File) => { setUploadingImage(id); const form = new FormData(); form.append('file',file); form.append('folder','certificaciones'); try { const response = await fetch('/admin/api/media',{method:'POST',body:form}); const data = await response.json(); if (!response.ok) { window.alert(data.error || 'No se pudo subir la imagen.'); return; } updateCertification(id,'image',data.url); } finally { setUploadingImage(null); } };
   const addCourse = () => setContent(current => ({ ...current, courses:[...(current.courses ?? []),{ id:crypto.randomUUID(),title:'Nuevo curso',category:'Networking',modality:'Por confirmar',status:'draft',visible:true }] }));
   const updateCourse = (id:string, key:string, value:string|boolean) => setContent(current => ({ ...current, courses:(current.courses ?? []).map(course => course.id === id ? { ...course,[key]:value } : course) }));
   const removeCourse = (id:string) => setContent(current => ({ ...current, courses:(current.courses ?? []).filter(course => course.id !== id) }));
